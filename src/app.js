@@ -1,35 +1,19 @@
 import express from "express";
+import { adminAuth, userAuth } from "./middlewares/auth.js";
 
 const app = express();
 const PORT = 3000;
 
-app.post('/login',(req,res)=>{
-    res.send('Login Page')
-})
-app.post('/register',(req,res)=>{
-    res.send('Register Page')
-})
-app.get('/user/:userId',(req,res)=>{
-    console.log(req.params);
-    console.log(req.query);
-    res.send('User Data fetched successfully')
-})
-app.post('/user',(req,res)=>{
-    res.send('User Data saved successfully')
-})
-app.delete('/user',(req,res)=>{
-    res.send('User Data deleted successfully')
-})
-app.put('/user',(req,res)=>{
-    res.send('User Data updated successfully')
-})
-app.use('/user',(req,res)=>{
-    res.send('User Data Wildcard')
-})
-app.use('/',(req,res)=>{
-    res.send('Homepage')
-})
-
+app.use("/admin", adminAuth);
+app.use("/admin/dashboard", (req, res) => {
+  res.send("Here is admin dashboard");
+});
+app.use("/admin/users", (req, res) => {
+  res.send("Here is all users");
+});
+app.use("/user", userAuth, (req, res) => {
+  res.send("Here is user dashboard");
+});
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
