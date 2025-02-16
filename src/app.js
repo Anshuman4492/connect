@@ -12,7 +12,18 @@ app.use("/admin/users", (req, res) => {
   res.send("Here is all users");
 });
 app.use("/user", userAuth, (req, res) => {
+  try {
+    // fetch from DB
+  } catch (error) {
+    throw new Error(error.message);
+  }
   res.send("Here is user dashboard");
+});
+
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(401).send("Something went wrong");
+  }
 });
 
 app.listen(PORT, () => {
