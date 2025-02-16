@@ -9,7 +9,9 @@ app.post('/login',(req,res)=>{
 app.post('/register',(req,res)=>{
     res.send('Register Page')
 })
-app.get('/user',(req,res)=>{
+app.get('/user/:userId',(req,res)=>{
+    console.log(req.params);
+    console.log(req.query);
     res.send('User Data fetched successfully')
 })
 app.post('/user',(req,res)=>{
