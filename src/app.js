@@ -13,6 +13,19 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   const user = new User(req.body);
   try {
+    const ALLOWED_ADD_FIELDS = [
+      "userEmail",
+      "firstName",
+      "lastName",
+      "password",
+      "gender",
+    ];
+    const isCreationAllowed = Object.keys(valueToUpdate).every((key) =>
+      ALLOWED_ADD_FIELDS.includes(key)
+    );
+    if (!isCreationAllowed) {
+      throw new Error("Account creation not allowed for these fields");
+    }
     await user.save();
     res.send("User created successfully");
   } catch (error) {
@@ -49,6 +62,77 @@ app.get("/user/:userId", async (req, res) => {
     res.send(userById);
   } catch (error) {
     res.status(401).send(`Error getting user by id:${error.message}`);
+  }
+});
+
+// Delete a user
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    await User.findByIdAndDelete(userId);
+    res.send("User deleted successfully");
+  } catch (error) {
+    res.status(401).send(`Error deleting user:${error.message}`);
+  }
+});
+
+// Update value to database, using userId
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
+  const valueToUpdate = req.body;
+  try {
+    const ALLOWED_UPDATE_FIELDS = [
+      "lastName",
+      "password",
+      "age",
+      "skills",
+      "gender",
+      "profileUrl",
+    ];
+    const isUpdateAllowed = Object.keys(data).every((key) =>
+      ALLOWED_UPDATE_FIELDS.includes(key)
+    );
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed for these fields");
+    }
+    if (data?.skills?.length > 10) {
+      throw new Error("Skills cannot be more than 10");
+    }
+    const updateduser = await User.findByIdAndUpdate(userId, valueToUpdate, {
+      returnDocument: "after",
+    });
+    res.send(`User updated successfully, ${updateduser}`);
+  } catch (error) {
+    res.status(401).send(`Error updating user:${error.message}`);
+  }
+});
+// Update value to database, using email
+app.patch("/user", async (req, res) => {
+  const userEmail = req.body.email;
+  const valueToUpdate = req.body;
+  try {
+    const ALLOWED_UPDATE_FIELDS = [
+      "userEmail",
+      "lastName",
+      "password",
+      "age",
+      "skills",
+      "gender",
+      "profileUrl",
+    ];
+    const isUpdateAllowed = Object.keys(valueToUpdate).every((key) =>
+      ALLOWED_UPDATE_FIELDS.includes(key)
+    );
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed for these fields");
+    }
+    if (data?.skills?.length > 10) {
+      throw new Error("Skills cannot be more than 10");
+    }
+    await User.findOneAndUpdate({ email: userEmail }, valueToUpdate);
+    res.send("User updated successfully");
+  } catch (error) {
+    res.status(401).send(`Error updating user:${error.message}`);
   }
 });
 
