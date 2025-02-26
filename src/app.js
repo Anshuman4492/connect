@@ -1,8 +1,10 @@
 import express from "express";
+import bcrypt from "bcrypt";
 import "dotenv/config";
 import { adminAuth, userAuth } from "./middlewares/auth.js";
 import { connectDB } from "./config/database.js";
 import { User } from "./models/user.js";
+import { validateSignUpData } from "./utils/validation.js";
 const app = express();
 const PORT = 3000;
 
@@ -11,16 +13,27 @@ app.use(express.json());
 
 // Register a new user
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
   try {
+    // validate req body
+    validateSignUpData(req);
+    const { firstName, lastName, email, password } = req.body;
+    // Encrypt the password entered by user
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    });
     const ALLOWED_ADD_FIELDS = [
-      "userEmail",
+      "email",
       "firstName",
       "lastName",
       "password",
       "gender",
     ];
-    const isCreationAllowed = Object.keys(valueToUpdate).every((key) =>
+    const isCreationAllowed = Object.keys(req.body).every((key) =>
       ALLOWED_ADD_FIELDS.includes(key)
     );
     if (!isCreationAllowed) {
@@ -29,10 +42,27 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("User created successfully");
   } catch (error) {
-    res.status(401).send(`Error creating user:${error.message}`);
+    res.status(401).send(`Error creating user: -> ${error.message}`);
   }
 });
 
+// POST /login
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    // Check email is present or not
+    const validUser = await User.findOne({ email });
+    if (!validUser) throw new Error("Invalid Credentials");
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      validUser.password
+    );
+    if (!isPasswordCorrect) throw new Error("Invalid Credentials");
+    res.send("Login successful");
+  } catch (error) {
+    res.send(`Error:${error.message}`);
+  }
+});
 // Get /user by email
 app.get("/user", async (req, res) => {
   const userEmail = req.body.email;
