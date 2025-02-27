@@ -1,6 +1,8 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import "dotenv/config";
+import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 import { adminAuth, userAuth } from "./middlewares/auth.js";
 import { connectDB } from "./config/database.js";
 import { User } from "./models/user.js";
@@ -10,6 +12,8 @@ const PORT = 3000;
 
 // Making JSON in req.body to JS object, so that we can read it
 app.use(express.json());
+// Making cookies to JS object, so that we can read it
+app.use(cookieParser());
 
 // Register a new user
 app.post("/signup", async (req, res) => {
@@ -58,11 +62,37 @@ app.post("/login", async (req, res) => {
       validUser.password
     );
     if (!isPasswordCorrect) throw new Error("Invalid Credentials");
+    // Set token in cookies
+    // res.cookie("token", "Secret_Auth_Token");
+
+    // Create a JsonWebToken for more security
+    const token = await jwt.sign(
+      { _id: validUser._id },
+      process.env.JWT_SECRET
+    );
+    res.cookie("token", token);
+
     res.send("Login successful");
   } catch (error) {
     res.send(`Error:${error.message}`);
   }
 });
+
+// GET /profile
+app.get("/profile", async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) throw new Error("Token not found");
+    const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
+    if (!decodedToken) throw new Error("Invalid token");
+    const verifiedUser = await User.findById(decodedToken._id);
+    if (!verifiedUser) throw new Error("User not found");
+    res.send(verifiedUser);
+  } catch (error) {
+    res.send(`Error:${error.message}`);
+  }
+});
+
 // Get /user by email
 app.get("/user", async (req, res) => {
   const userEmail = req.body.email;
