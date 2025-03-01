@@ -61,6 +61,11 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
+    about: {
+      type: String,
+      maxLength: 200,
+      default: "This is default about for user",
+    },
     profileUrl: {
       type: String,
       default:
