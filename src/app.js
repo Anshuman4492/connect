@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
-import { adminAuth, userAuth } from "./middlewares/auth.js";
+import { userAuth } from "./middlewares/auth.js";
 import { connectDB } from "./config/database.js";
 import { User } from "./models/user.js";
 import { validateSignUpData } from "./utils/validation.js";
@@ -54,23 +54,22 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    // Check email is present or not
+    validateLogInData(req);
+
     const validUser = await User.findOne({ email });
     if (!validUser) throw new Error("Invalid Credentials");
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      validUser.password
-    );
+    const isPasswordCorrect = await validUser.validatePassword(password);
+
     if (!isPasswordCorrect) throw new Error("Invalid Credentials");
     // Set token in cookies
     // res.cookie("token", "Secret_Auth_Token");
 
     // Create a JsonWebToken for more security
-    const token = await jwt.sign(
-      { _id: validUser._id },
-      process.env.JWT_SECRET
-    );
-    res.cookie("token", token);
+    const token = await validUser.getJWT();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
 
     res.send("Login successful");
   } catch (error) {
@@ -79,15 +78,22 @@ app.post("/login", async (req, res) => {
 });
 
 // GET /profile
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const { token } = req.cookies;
-    if (!token) throw new Error("Token not found");
-    const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
-    if (!decodedToken) throw new Error("Invalid token");
-    const verifiedUser = await User.findById(decodedToken._id);
-    if (!verifiedUser) throw new Error("User not found");
-    res.send(verifiedUser);
+    const user = req.user;
+    if (!user) throw new Error("User not found");
+    res.send(user);
+  } catch (error) {
+    res.send(`Error:${error.message}`);
+  }
+});
+
+// POST /SendConnectionRequest
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) throw new Error("User not found");
+    res.send(`${user.firstName} has sent connection request`);
   } catch (error) {
     res.send(`Error:${error.message}`);
   }

@@ -10,3 +10,9 @@ export const validateSignUpData = (req) => {
   if (!validator.isStrongPassword(password))
     throw new Error("Password is not strong enough");
 };
+export const validateLoginData = (req) => {
+  const { email, password } = req.body;
+  if (!email) throw new Error("Email is required");
+  if (!validator.isEmail(email)) throw new Error("Invalid email");
+  if (!password) throw new Error("Password is required");
+};
