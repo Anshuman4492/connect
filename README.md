@@ -20,12 +20,15 @@ A social media platform
 - Merge both of above to: userId is id of person, who we want to send request
 - POST /request/send/:status/:userId (Status can be either like or pass)
 
-- POST /request/send/block/:userId (Block)
-- POST /request/review/accecpted/:userId 
-- POST /request/review/rejected/:userId 
+
+- POST /request/review/accecpted/:requestId 
+- POST /request/review/rejected/:requestId
+- POST /request/review/block/:requestId (Block)
+- Merge both of above to: userId is id of person, who we want to review request
+- POST /request/review/:status/:requestId (Status can be either accepted, rejected or blocked)
 
 ## User Router
-- GET /user/feed - Gets profile of other users on platform
-- GET /user/connections
 - GET /user/requests
+- GET /user/connections
+- GET /user/feed - Gets profile of other users on platform
 

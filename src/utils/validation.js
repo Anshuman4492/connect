@@ -53,3 +53,9 @@ export const validateSentConnectionRequestStatus = (status) => {
   const allowedStatus = ["pass", "like"];
   return allowedStatus.includes(status);
 };
+
+// Validate sent connection request status
+export const validateReviewConnectionRequest = (status) => {
+  const allowedStatus = ["accepted", "rejected", "blocked"];
+  return allowedStatus.includes(status);
+};

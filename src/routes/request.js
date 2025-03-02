@@ -1,8 +1,11 @@
 import express from "express";
 import { userAuth } from "../middlewares/auth.js";
 import { User } from "../models/user.js";
-import { validateSentConnectionRequestStatus } from "../utils/validation.js";
-import { connectionRequest } from "../models/connectionRequest.js";
+import {
+  validateReviewConnectionRequest,
+  validateSentConnectionRequestStatus,
+} from "../utils/validation.js";
+import { ConnectionRequest } from "../models/connectionRequest.js";
 const requestRouter = express.Router();
 
 // POST /SendConnectionRequest
@@ -31,7 +34,7 @@ requestRouter.post(
       const fromUser = req.user;
       const fromUserId = fromUser._id;
 
-      const existingConnectionRequest = await connectionRequest.findOne({
+      const existingConnectionRequest = await ConnectionRequest.findOne({
         $or: [
           { fromUserId, toUserId },
           { fromUserId: toUserId, toUserId: fromUserId },
@@ -45,7 +48,7 @@ requestRouter.post(
       }
 
       // Send connection request
-      const newConnectionRequest = new connectionRequest({
+      const newConnectionRequest = new ConnectionRequest({
         fromUserId,
         toUserId,
         status,
@@ -56,6 +59,47 @@ requestRouter.post(
       res.json({
         message: `${fromUser.firstName} sent a ${status} request to ${toUser.firstName}`,
         data: newConnectionRequest,
+      });
+    } catch (error) {
+      res.status(401).send(`Error:${error.message}`);
+    }
+  }
+);
+
+// POST /reviewConnectionRequest
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const { status, requestId } = req.params;
+      // Validate status [accepted, rejected, blocked]
+      const isStatusValid = validateReviewConnectionRequest(status);
+      if (!isStatusValid) {
+        return res.status(400).json({ message: `Invalid status:${status}` });
+      }
+
+      const loggedInUser = req.user;
+      // validate requestId
+      const validConnectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "like",
+      });
+
+      if (!validConnectionRequest) {
+        return res
+          .status(404)
+          .json({ message: "Connection Request not found" });
+      }
+
+      // Update connection request
+      validConnectionRequest.status = status;
+      await validConnectionRequest.save();
+
+      res.status(200).json({
+        message: `Connection request ${status} successfully`,
+        data: validConnectionRequest,
       });
     } catch (error) {
       res.status(401).send(`Error:${error.message}`);
