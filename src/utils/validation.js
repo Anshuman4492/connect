@@ -47,3 +47,9 @@ export const validatePasswordEditData = (req) => {
   if (!currentPassword || !newPassword || !confirmNewPassword) return false;
   return true;
 };
+
+// Validate sent connection request status
+export const validateSentConnectionRequestStatus = (status) => {
+  const allowedStatus = ["pass", "like"];
+  return allowedStatus.includes(status);
+};

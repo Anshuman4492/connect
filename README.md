@@ -17,6 +17,9 @@ A social media platform
 ## Request Router
 - POST /request/send/like/:userId (Send)
 - POST /request/send/pass/:userId (Ignore)
+- Merge both of above to: userId is id of person, who we want to send request
+- POST /request/send/:status/:userId (Status can be either like or pass)
+
 - POST /request/send/block/:userId (Block)
 - POST /request/review/accecpted/:userId 
 - POST /request/review/rejected/:userId 
