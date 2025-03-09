@@ -28,7 +28,7 @@ A social media platform
 - POST /request/review/:status/:requestId (Status can be either accepted, rejected or blocked)
 
 ## User Router
-- GET /user/requests
+- GET /user/requests/received
 - GET /user/connections
 - GET /user/feed - Gets profile of other users on platform
 

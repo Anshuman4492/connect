@@ -6,6 +6,7 @@ import { User } from "./models/user.js";
 import authRouter from "./routes/auth.js";
 import profileRouter from "./routes/profile.js";
 import requestRouter from "./routes/request.js";
+import userRouter from "./routes/user.js";
 const app = express();
 const PORT = 3000;
 
@@ -22,6 +23,9 @@ app.use("/", profileRouter);
 
 // Request Router
 app.use("/", requestRouter);
+
+// User Router
+app.use("/", userRouter);
 
 // Get /user by email
 app.get("/user", async (req, res) => {
