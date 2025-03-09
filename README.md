@@ -32,3 +32,13 @@ A social media platform
 - GET /user/connections
 - GET /user/feed - Gets profile of other users on platform
 
+// Pagination
+- GET /user/feed?page=1&limit=10 => "return first 10 users" => Skip(0) and limit(10)
+
+- GET /user/feed?page=2&limit=10 => "return second 10 users" => Skip(10) and limit(10)
+
+- GET /user/feed?page=3&limit=10 => "return third 10 users" => Skip(20) and limit(10)
+
+- Skip = (page-1)*limit
+
+
