@@ -1,5 +1,6 @@
 import express from "express";
 import "dotenv/config";
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./config/database.js";
 import { User } from "./models/user.js";
@@ -9,6 +10,14 @@ import requestRouter from "./routes/request.js";
 import userRouter from "./routes/user.js";
 const app = express();
 const PORT = 3000;
+
+// Solve CORS Error
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 // Making JSON in req.body to JS object, so that we can read it
 app.use(express.json());
