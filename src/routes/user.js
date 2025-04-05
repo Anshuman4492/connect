@@ -37,16 +37,18 @@ userRouter.get("/user/requests/connected", userAuth, async (req, res) => {
         },
         { toUserId: loggedInUser._id, status: "accepted" },
       ],
-    }).populate(
-      loggedInUser._id.equals(fromUserId) ? "fromUserId" : "toUserId",
-      SAFE_USER_DATA
-    );
+      $and: [
+        { fromUserId: { $ne: loggedInUser._id } },
+        { toUserId: { $ne: loggedInUser._id } },
+      ],
+    })
+      .populate("fromUserId", SAFE_USER_DATA)
+      .populate("toUserId", SAFE_USER_DATA);
 
     const data = connections.map((connection) => connection.fromUserId);
-    console.log(data);
     res.status(200).json({ message: "Success", data: data });
   } catch (error) {
-    res.status(401).send(`Error:${error.message}`);
+    res.status(401).send(`Error: => ${error.message}`);
   }
 });
 
@@ -81,7 +83,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     // Filter responses, which are not in hideUsersFromFeed
 
     const users = await User.find({
-      $ans: [
+      $and: [
         { _id: { $nin: Array.from(hideUsersFromFeed) } },
         { _id: { $ne: loggedInUser._id } },
       ],

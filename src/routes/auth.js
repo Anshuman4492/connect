@@ -37,8 +37,8 @@ authRouter.post("/signup", async (req, res) => {
     if (!isCreationAllowed) {
       throw new Error("Account creation not allowed for these fields");
     }
-    await user.save();
-    res.send("User created successfully");
+    const createdUser = await user.save();
+    res.json({ message: "User created successfully", data: createdUser });
   } catch (error) {
     res.status(401).send(`Error creating user: -> ${error.message}`);
   }
@@ -51,7 +51,7 @@ authRouter.post("/login", async (req, res) => {
     validateLoginData(req);
 
     const validUser = await User.findOne({ email });
-    if (!validUser) throw new Error("Invalid Credentials");
+    if (!validUser) return res.status(401).send("Invalid Credentials");
     const isPasswordCorrect = await validUser.validatePassword(password);
 
     if (!isPasswordCorrect) throw new Error("Invalid Credentials");

@@ -12,15 +12,15 @@ const profileRouter = express.Router();
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
     const user = req.user;
-    if (!user) throw new Error("User not found");
+    if (!user) res.status(401).json({ message: "Please login first" });
     res.send(user);
   } catch (error) {
     res.send(`Error:${error.message}`);
   }
 });
 
-// POST /profile/edit
-profileRouter.post("/profile/edit", userAuth, async (req, res) => {
+// PATCH /profile/edit
+profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
     if (!validateProfileEditData(req)) throw new Error("Invalid edit request");
 
