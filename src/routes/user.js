@@ -28,7 +28,6 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
 userRouter.get("/user/requests/connected", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
-
     const connections = await ConnectionRequest.find({
       $or: [
         {
@@ -36,10 +35,6 @@ userRouter.get("/user/requests/connected", userAuth, async (req, res) => {
           status: "accepted",
         },
         { toUserId: loggedInUser._id, status: "accepted" },
-      ],
-      $and: [
-        { fromUserId: { $ne: loggedInUser._id } },
-        { toUserId: { $ne: loggedInUser._id } },
       ],
     })
       .populate("fromUserId", SAFE_USER_DATA)

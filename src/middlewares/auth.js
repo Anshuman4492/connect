@@ -5,8 +5,7 @@ export const userAuth = async (req, res, next) => {
     const { token } = req.cookies;
     if (!token) throw new Error("Token not found");
 
-    // const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
-    const decodedToken = await jwt.verify(token, "@JWT_Login_Secret_Hash@");
+    const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
 
     const { _id } = decodedToken;
     if (!_id) throw new Error("Invalid token");

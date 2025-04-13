@@ -2,9 +2,7 @@ import mongoose from "mongoose";
 const DB_URL = process.env.DB_URL;
 export const connectDB = async () => {
   try {
-    await mongoose.connect(
-      "mongodb+srv://anshuman:Anshuman%40mongodb@cluster0.iuqrv.mongodb.net/connect?retryWrites=true&w=majority&appName=Cluster0"
-    );
+    await mongoose.connect(process.env.DB_URL);
   } catch (error) {
     console.log("Error connecting to database", error);
   }
