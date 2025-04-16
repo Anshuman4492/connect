@@ -2,6 +2,7 @@ import express from "express";
 import { userAuth } from "../middlewares/auth.js";
 import { ConnectionRequest } from "../models/connectionRequest.js";
 import { User } from "../models/user.js";
+
 const userRouter = express.Router();
 
 const SAFE_USER_DATA = "firstName lastName profileUrl about skills";
@@ -40,7 +41,13 @@ userRouter.get("/user/requests/connected", userAuth, async (req, res) => {
       .populate("fromUserId", SAFE_USER_DATA)
       .populate("toUserId", SAFE_USER_DATA);
 
-    const data = connections.map((connection) => connection.fromUserId);
+    // Filter out the logged-in user from the connections
+    const data = connections.map((connection) =>
+      connection.fromUserId._id.toString() === loggedInUser._id.toString()
+        ? connection.toUserId
+        : connection.fromUserId
+    );
+
     res.status(200).json({ message: "Success", data: data });
   } catch (error) {
     res.status(401).send(`Error: => ${error.message}`);

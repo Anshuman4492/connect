@@ -8,6 +8,10 @@ import authRouter from "./routes/auth.js";
 import profileRouter from "./routes/profile.js";
 import requestRouter from "./routes/request.js";
 import userRouter from "./routes/user.js";
+import http from "http";
+import initializeSocket from "./utils/socket.js";
+import chatRouter from "./routes/chat.js";
+
 const app = express();
 const PORT = 3000;
 
@@ -35,6 +39,9 @@ app.use("/", requestRouter);
 
 // User Router
 app.use("/", userRouter);
+
+// Chat Router
+app.use("/", chatRouter);
 
 // Get /user by email
 app.get("/user", async (req, res) => {
@@ -140,10 +147,13 @@ app.patch("/user", async (req, res) => {
   }
 });
 
+const server = http.createServer(app);
+initializeSocket(server);
+
 connectDB()
   .then(() => {
     console.log("Connected to database successfully");
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is listening on port ${PORT}`);
     });
   })
