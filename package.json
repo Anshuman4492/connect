@@ -22,7 +22,9 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.1",
+    "simple-peer": "^9.11.1",
     "socket.io": "^4.8.1",
+    "socket.io-p2p-server": "^1.2.0",
     "validator": "^13.12.0"
   }
 }
